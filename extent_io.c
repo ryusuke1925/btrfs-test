@@ -2925,6 +2925,14 @@ static int __do_readpage(struct extent_io_tree *tree,
 			break;
 		}
 		extent_offset = cur - em->start;
+
+		////////////////////////////////////////////////////////////////////////////////////////
+		if (extent_map_end(em) <= cur) {
+			printk("this is temporary code!! bad extent! em: [%llu %llu] current [%llu]",
+					em->start, em->len, cur);
+		}
+		///////////////////////////////////////////////////////////////////////////////////////
+
 		BUG_ON(extent_map_end(em) <= cur);
 		BUG_ON(end < cur);
 
