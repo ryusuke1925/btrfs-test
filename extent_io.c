@@ -2850,6 +2850,7 @@ __get_extent_map(struct inode *inode, struct page *page, size_t pg_offset,
  * XXX JDM: This needs looking at to ensure proper page locking
  * return 0 on success, otherwise return error
  */
+
 static int __do_readpage(struct extent_io_tree *tree,
 			 struct page *page,
 			 get_extent_t *get_extent,
@@ -2876,6 +2877,9 @@ static int __do_readpage(struct extent_io_tree *tree,
 	size_t blocksize = inode->i_sb->s_blocksize;
 	unsigned long this_bio_flag = 0;
 
+	int loop_count=0;
+	int flag=0;
+
 	set_page_extent_mapped(page);
 
 	if (!PageUptodate(page)) {
@@ -2885,6 +2889,9 @@ static int __do_readpage(struct extent_io_tree *tree,
 			goto out;
 		}
 	}
+	
+	printk("");
+	printk(page->index= last_byte >> PAGE_SHIFT) {
 
 	if (page->index == last_byte >> PAGE_SHIFT) {
 		char *userpage;
@@ -2901,6 +2908,13 @@ static int __do_readpage(struct extent_io_tree *tree,
 	while (cur <= end) {
 		bool force_bio_submit = false;
 		u64 offset;
+
+		/////////////////////////////////////////////////
+		printk("Confirmation:loop_count=%d,cur=%lld,last_byte=%lld",
+			loop_count, cur, last_byte);
+
+		loop_count++;
+		////////////////////////////////////////////////
 
 		if (cur >= last_byte) {
 			char *userpage;
@@ -2930,11 +2944,19 @@ static int __do_readpage(struct extent_io_tree *tree,
 		if (extent_map_end(em) <= cur) {
 			printk("this is temporary code!! bad extent! em: [%llu %llu] current [%llu]",
 					em->start, em->len, cur);
+		flag=1;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////
 
 		BUG_ON(extent_map_end(em) <= cur);
 		BUG_ON(end < cur);
+
+		/////////////////////////////////////////////////////////////////////////////////////////
+		if (flag) {
+			printk("Confirmation:em: [%llu %llu] current [%llu]",
+					em->start, em->len, cur);
+		}
+		////////////////////////////////////////////////////////////////////////////////////////
 
 		if (test_bit(EXTENT_FLAG_COMPRESSED, &em->flags)) {
 			this_bio_flag |= EXTENT_BIO_COMPRESSED;
